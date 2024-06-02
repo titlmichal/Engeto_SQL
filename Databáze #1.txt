@@ -1,0 +1,241 @@
+##### DATABÁZE 1 #####
+- relační databáze jako excel s mnoha stranami, tabulkami a řádky
+- oblíbený nástroj: phpMyAdmin (demo: https://demo.phpmyadmin.net/master-config/public/; dokumentace: https://www.phpmyadmin.net/docs/)
+- pokusy s SQL: https://sqlfiddle.com/
+- DataBase Management System (DBMS), případně RDBMS (pro relační) = sbírka programů, které nám umožní přistupovat, organizovat a filtrovat data v databázi.
+- LAMP = Linux, Apache, MySQL a PHP. Tyto technologie se často používají jako základ pro budování finálních produktů
+- localhost = Většinou náš počítač, neboli lokální server.; můžeme k němu přes prohlížeč přistoupit i pod IP adresou 127.0.0.1
+
+___SEZNÁMENÍ SE S DATABÁZEMI___
+- aka DB
+- DB jako elektronický evideční systém --> pro správu třeba DBMS (např. MySQL, PostgreSQL, Microsoft SQL Server nebo Oracle DB)
+- DBs obecně nejsou přenosné mezi různými db systémy, ale např skrze standard SQL nebo přepojení mohou komunikovat
+- relační DB mají schéma tabulek/entit a vztahů/relací
+- relační model
+	- většinou jsou DB relační
+	- zde MariaDB = zjednodušená odnož MySQL
+	- MariaDB je open-source, MySQL od určité doby patří Oracle
+- DB jako 3 vrstva aplikace (1. je UI, 2. vlastní logika appky)
+- DB není úplně přesné, lepší RDBMS (aka systém řízení báze dat; databázový systém)
+- nejoblíbenější: https://db-engines.com/en/ranking (vývoj rankingu: https://db-engines.com/en/ranking_trend)
+
+___TYPY JAZYKŮ___
+- dělení:
+DDL – Data Definition Language:
+	- definice datové struktury (tvorba/úprava)
+	- tvorba tabulek, atributů, vazeb
+	- CREATE, DROP, ALTER
+DML – Data Manipulation Language,
+	- pro manipulaci s uloženými, nebo těmi, co chceme uložit
+	- destukritivní X nedestruktivní (DQL - data query language) dle možnosti ztráty
+	- SELECT, INSERT, DELETE, UPDATE
+DCL – Data Control Language,
+	- řízení přístupů
+	- GRANT, REVOKE, DENY
+TCL – Transaction Control Language.
+	- správa transakcí, změn příkazů z DDL, DML a DCL
+	- COMMIT, ROLLBACK, SAVEPOINT
+
+___RELAČNÍ ALGEBRA___
+- naprostý základ SQL, postaven/a 1974
+- moderní systémy už mají fce širší než původní teorie
+- základní operace této algebry: sjednocení, průnik, rozdíl, kartézský součin (všechny uspořádané dvojie, kde na prvním místě je prvek z množiny A
+a na druhém z množiny B)
+- projekce (-výběr sloupců): SELECT
+- selekce (kritéria + log. operátory): WHERE
+- přejmenování: AS
+- spojení: JOIN
+- agregace: COUNT, SUM, AVG, MIN, MAX
+
+___SCHÉMA___
+- díky schématu mohou být DB efektivní
+- proces strukturalizace dat = normalizace (https://www.geeksforgeeks.org/normal-forms-in-dbms/)
+- co by schéma mělo ukazovat:
+tabulky - jak obdelníky s názvem
+sloupec tabulek - aka atribut v tabulce, název + datový typ
+vztahy - čáry mezi tabulkami
+integritní omezení - sada omezení, co lze a nelze
+- bez konkrétních datových záznamů, max názve sloupců
+- integritní omezení pomáhají s konzistencí dat, definujeme pomocí DDL při tvorbě schématu
+- de facto dodatečné vlastnosti atributů vedle datového typu
+- např.: NOT NULL (data nesmí být prázdná při vkládání, jinak chyba), UNIQUE (unikátní napříč tabulkou),
+PK (primární klíč - identifikuje jednoznačce jeden záznam), FK (foreign klíč - odkaz na atribut v cizí tabule, pro definici vztahů tabulek,
+ideálně odkazuje v PK v jiné tabulce), DEFAULT (výchozí hodnota, pokud není zadána) ... https://mariadb.com/kb/en/library/constraint/
+- transakce = skupina příkazů, které převedou databázi z jednoho konzistentního stavu do druhého konzistentního stavu.
+- vlastnosti transakcí, které by měly mít pro vhodné fungování
+A: atomicita - musí projít vše nebo nic
+C: consistency - po provedení musít být DB v konzistentním stavu (neporušení omezení, klíče sedí, datový typy, ...)
+I: isolation - zároveň spuštěné nesmí mít na sebe vliv --> fungují jakoby šly po sobě
+D: durability - změny jsou trvale uložené
+- stavy transakcí:
+Aktivní: výchozí stav od počátku i v době běhu transakce.
+Částečně potvrzená: nastane po provedení poslední operace transakce.
+Chybná: po zjištění, že normální běh transakce nemůže pokračovat – bude nutné transakci zrušit.
+Zrušená: po skončení operace vrácení zpět do zdravého bodu. Následně může nastat pokus o nové provedení transakce, nebo se transakce zamítne.
+Potvrzená: po úspěšném dokončení operace. Nastane nový bezpečný stav databáze.
+
+
+___DATABÁZOVÝ SYSTÉM___
+- 1. krok = instalace DB systému (db serveru) na náš (localhost)
+- v textu je to o instalaci na Linux, zde Windows: https://mariadb.com/kb/en/installing-mariadb-msi-packages-on-windows/
+- spustil jsem to skrze MySQL CLient (MariaDB ...) jako ostatní appky
+- ...jako asi je to správně, uvidím no
+
+___ZÁKLADY PRÁCE S DATABÁZEMI___
+- SHOW DATABASES; ... ukáže aktuální DBs
+	- v tuhle chvíli jsou tam 3-4 implicitní, ale ty neřešíme
+- řádek začíná MariaDB[(none)] ... to je proto, že žádná DB není zvolena
+- CREATE DATABASE engeto; ... vytvoření DB engeto
+- teď už ukáže 4-5 DBs
+- \h ... \help ... pro pomoc
+- když udělám v dotazu chybu, stačí napsat \c ... zruší dotaz
+- USE engeto; ... vyberu DB k práci (vrátí Database changed)
+	- už to není none
+- SHOW TABLES; ... ukaž tabulky, vrátí teď prázdný set
+- vytvoření tabulky (nemusím to psát do jedno řádku, DB kouká na ten středník):
+CREATE TABLE customers (
+  id INT NOT NULL AUTO_INCREMENT,
+  firstName VARCHAR(255),
+  lastName VARCHAR(255),
+  email VARCHAR(255),
+  address VARCHAR(255),
+  city VARCHAR(255),
+  state VARCHAR(255), 
+  PRIMARY KEY(id)
+);
+- CREATE TABLE je jasný, název tabulky taky, zajímavý je PRIMARY KEY(id) = integritní omezení, že id je primární klíč
+- DESCRIBE customers; ... popíše strukturuy tabulky
+	- ve výstupu je důležitý sloupec Field, kde jsou atributy/sloupce
+- další tabulka:
+CREATE TABLE products (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255),
+  price INT,
+  PRIMARY KEY(id)
+);
+- chci upravit tabulku --> ALTER TABLE nazev_tabulky CO CHCI UDĚLAT
+ALTER TABLE customers ADD COLUMN testcol VARCHAR(255);
+- mazání --> DROP
+ALTER TABLE customers DROP COLUMN testCol;
+- jde to i na celé tabulky
+CREATE TABLE testtable (id INT, name VARCHAR(128));
+DROP TABLE testtable;
+- nebo lze mazat i celé DBs
+CREATE DATABASE testdb;
+DROP DATABASE testdb;
+
+___Slovníček___
+- Démon = Anglicky daemon. Služba čekající na nějakou událost. Až událost nastane, démon se aktivuje a provede činnost, na kterou je naprogramován.
+- Root = V mnoha systémech hlavní uživatel, který má plná práva se systémem pracovat. Pozor! S velkou mocí přichází velká zodpovědnost...
+
+___DATOVÉ TYPY___
+- je efektivní i bezpečné používat DB a data, tak jak je to navrženo od začátku
+- Logický operátor = Slouží pro vyhodnocení nějaké podmínky. Typicky můžeme používat !, && a ||.
+- Modifikátor = Modifikátory můžeme aplikovat na různé atributy databáze a vytvořit tak integritní omezení, které nám následně databázový systém hlídá. Typickými zástupci jsou UNIQUE a AUTO_INCREMENT.
+- INT = celé číslo
+- FLOAT = desetinné
+- BOOLEAN = (občas jako TINYINT) 1/0 jako True/False
+- CHAR = malý počet znaků (v MDB 0-255)
+- VARCHAR = počet znaků o dané délce --> musí se definovat (typicky mocnina 2ky) --> konkrétní datový bod může být menší, ale ne větší
+- TEXT = nehledíme na délku, případně LONGTEXT
+- ENUM = Výčet hodnot. Řetězcový datový typ, který může mít pouze jednu hodnotu, vybranou ze seznamu hodnot 'hodnota1', 'hodnota2', ..., NULL nebo speciální chybové hodnoty. 
+- DATE = lepší než dávat datum v textu, formát je YYYY-MM-DD
+- TIME = opět podobně, formát HH:MM:SS.ssssss
+- TIMESTAMP = časová známka
+- modifikátory: volitelné, upravující chování ve sloupcích
+	- AUTO_INCREMENT: hodnotou mohou být jen čísla. Často se využívá pro navyšování sloupce id. Databáze se postará, aby sloupec dostal číslo o 1 vyšší než id posledního řádku.
+	- NOT NULL: hodnota nesmí být prázdná. Používá se při vkládání polí, která musí obsahovat korektní záznam v databázi.
+	- DEFAULT hodnota: výchozí hodnota, kterou dostane sloupec v databázi, když hodnotu při vkládáni záznamu nezadáme.
+	- UNIQUE: integritní omezení, podle kterého nesmí existovat více řádků se stejnou hodnotou v daném sloupci (výjimka je NULL).
+	- PRIMARY KEY: určuje, který sloupec bude používán jako klíč při přístupu do tabulky. V každé tabulce má vždy hodnoty NOT NULL a UNIQUE.
+- uživatelské datové typy MDB a MySQL nemá, ale když ano, tak se definuje (DDL) a je dostupný v DB, ne celém (R)DBMS
+
+___OPERÁTORY___
+- Základní aritmetické operátory: + (INT/FLOAT --> FLOAT), -, *, / ... např. tedy SELECT 10/2 ... vrátí 5
+- btw prý je lepší dělat výpočty na straně serveru a do aplikace posílat už hotové výsledky
+- Dodatečné aritmetické operátory: DIV (dělení se zaokrouhlením, odebere se vše za 10tinnou čárkou), % (modulo) ... https://mariadb.com/kb/en/library/operators/
+- Logické operátory: ! (NOT), && (konjunkce, logické AND), || (disjunkce, logické OR), XOR (výlučná disjunkce, to moc nechápu tbh)
+- Operátory porovnání: klasika = != < > <= >= (SELECT 10 > 2; ... vrátí 1 jako True)
+- další: LIKE, IN, BETWEEN, ..., https://mariadb.com/kb/en/comparison-operators/
+
+
+___Vkládání, výběr, filtrování a řazení dat___
+- CRUD – create je INSERT INTO, read je SELECT, update je UPDATE a delete je DELETE
+- vkládání dat - INSERT
+	- INSERT INTO tabulka (sloupce) VALUES (hodnoty);
+	- INSERT INTO customers (firstName, lastName, email, address, city, state) VALUES('John', 'Smith', 'john@engeto.com', 'Cyrilska 7', 'Brno', 'Czech Republic');
+	- lez zkrátit na: INSERT INTO customers VALUES(1, 'John', 'Smith', 'john@engeto.com', 'Cyrilska 7', 'Brno', 'Czech Republic');
+	- ALE hodnoty je nutné zadávat v pořadí tabulky! (když to zkracuju)
+	- když chybí --> dám NULL
+	- lze dávat samozřejmě víc řádku: INSERT INTO customers VALUES (hodnoty1), (hodnoty2), ... (hodnotyX);
+- úprava dat - UPDATE
+	- UPDATE tabulka SET sloupce = hodnota WHERE podmínka;
+	- např. UPDATE customers SET city = 'Prague' WHERE email = 'ondrej@engeto.com';
+	- nebo i víc naráz sloupců: UPDATE customers SET city = 'Bratislava', state = 'Slovakia' WHERE city = 'Pressburg';
+	- POZOR: když nedám WHERE podmínku --> ZMĚNÍM VŠECHNO V SLOUPCI
+	- víc řádků je trochu pain i guess:
+	UPDATE customers SET age = 23 WHERE id = 1;
+	UPDATE customers SET age = 45 WHERE id = 2; 
+	UPDATE customers SET age = 51 WHERE id = 3;
+	UPDATE customers SET age = 33 WHERE id = 4;
+	UPDATE customers SET age = 20 WHERE id = 5; 
+	UPDATE customers SET age = 64 WHERE id = 6;
+- mazání dat - DELETE
+	- destruktivní - NELZE VRÁTIT
+	- takže je dobré zálohovat
+	- DELETE from tabulka WHERE podminka;
+	- POZOR: vynechání WHERE --> celá tabulka GONE
+	- lze omezit i počet mazání: DELETE from tabulka WHERE podminka LIMIT počet_řádků_ke_smazání;
+
+___VÝBĚR DAT Z DATABÁZE___
+- SELECT, WHERE, ORDER BY (DESC/ASC), LIMIT (OFFSET - nastavení prvního vráceného záznamu) ... klasika
+- aliasy (pro tabulky i sloupce)
+- DISTINCT
+
+___AGREGAČNÍ FUNKCE___
+- hlavně počet, min, max a průměr --> COUNT(), MIN(), ...
+- GROUP BY: seskupování (hlavně pro agregaci)
+- COUNT(*) ... pro zjištění počtu záznamů
+
+___OPERACE NAD ŘETĚZCI___
+- CONCAT(hodnoty ke spojení)
+SELECT CONCAT('Enge', 'to', ' je ', 'super!');
+- jedna hodnota NULL --> vše NULL
+- GROUPCONCAT(SQL query, SEPARATOR) ... https://mariadb.com/kb/en/group_concat/
+SELECT 
+GROUP_CONCAT(CONCAT(firstName, ' ',lastName, ' (', email, ')') SEPARATOR ';') 
+AS "Informace o všech zákaznících" 
+FROM customers;
+- pro předání hodnoty v jedné buňce
+
+___Atributy řetězců___
+- CHAR_LENGTH(hodnota) --> vrátí délku ve znacích
+- BIT_LENGTH(hodnota) --> ...v bitech
+- bity řeknou víc o tom, kolik to zabírá paměti
+- STRCMP(řetezce ke srovnání) ... rovnají se řetězce? --> 0 totožní, -1 ne ale první je abecedně dříve, 1 ne ale druhý dříve
+- LOCATE(hledaný string, kde hledat) ... vrátí pozici, kde substring začíná, nebo 0 když tam není
+- LOCATE(hledaný string, kde hledat, kde začít hledat) ... stejné, jen začne dle pozice, jakou řeknu
+- SUBSTRING() ... dost useful taky na parsování ... https://mariadb.com/kb/en/substring/
+- LIKE _ nebo LIKE % ... podtržítko 1 volný znak, % libovolný počet znaků po
+- podobně IN() a BETWEEN
+
+___SLOVNÍČEK___
+- bílé znaky: Skupina znaků, mezi které se řadí například mezera nebo tabulátor. Často chceme jejich výskyt omezit na minimum. Použijeme například TRIM.
+
+___ČIŠTĚNÍ ŘETĚZCŮ___
+- LOWER(), UPPER()
+- LTRIM(), RTRIM(), TRIM() ... odstraní bílée znaky zleva/zprava/z obou stran
+- k TRIMům lze přidat i LEADING: https://mariadb.com/kb/en/trim/
+- QUOTE() ... když chci nechat použité apostrofy a nerozbít tím fci
+SELECT QUOTE("Let's write SQL!"); --> vrátí: 'Let\'s write SQL!' ... s tím lze dál pracovat bez problémů
+
+POKRAČOVAT 8 A 9 LEKCÍ: https://learn.engeto.com/cs/kurz/databaze-1-uvod-do-databazi/studium/vuhoqGCFT9aCwn9PevyDpg/spojovani-tabulek?originId=2mMo3SwNT06FXIlLSTlBJQ&originLesson=undefined.8:%20Spojov%C3%A1n%C3%AD%20tabulek
+
+
+
+
+
+
+
+
+
